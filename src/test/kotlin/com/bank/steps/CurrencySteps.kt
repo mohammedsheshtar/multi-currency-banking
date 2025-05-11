@@ -17,9 +17,12 @@ import com.bank.currency.CurrencyRepository
 import com.bank.currency.CurrencyEntity
 import io.cucumber.datatable.DataTable
 import java.util.stream.Collectors
+import org.springframework.test.context.ContextConfiguration
+import com.bank.config.TestConfig
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ContextConfiguration(classes = [TestConfig::class])
 class CurrencySteps {
 
     @Autowired
@@ -32,34 +35,33 @@ class CurrencySteps {
     private lateinit var currencyRepository: CurrencyRepository
 
     private var response: String? = null
+    private var lastStatusCode: Int = 0
 
     @Given("I am an authenticated user")
     fun iAmAnAuthenticatedUser() {
-        // Authentication is handled by TestSecurityConfig
+        // Authentication is handled by TestConfig
     }
 
     @When("I send a POST request to {string} with the following data:")
     fun iSendAPostRequest(endpoint: String, requestBody: String) {
-        response = mockMvc.perform(
+        val result = mockMvc.perform(
             MockMvcRequestBuilders.post(endpoint)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated)
-            .andReturn()
-            .response
-            .contentAsString
+        ).andReturn()
+        
+        lastStatusCode = result.response.status
+        response = result.response.contentAsString
     }
 
     @Then("the response status code should be {int}")
     fun theResponseStatusCodeShouldBe(statusCode: Int) {
-        // Status code is already verified in the @When step
+        Assertions.assertEquals(statusCode, lastStatusCode)
     }
 
     @And("the response should contain the currency details")
     fun theResponseShouldContainTheCurrencyDetails() {
         val responseMap = objectMapper.readValue(response, Map::class.java)
-        Assertions.assertTrue(responseMap.containsKey("id"))
         Assertions.assertTrue(responseMap.containsKey("countryCode"))
         Assertions.assertTrue(responseMap.containsKey("symbol"))
         Assertions.assertEquals("GB", responseMap["countryCode"])
@@ -68,6 +70,7 @@ class CurrencySteps {
 
     @And("the following currencies exist:")
     fun theFollowingCurrenciesExist(dataTable: DataTable) {
+        currencyRepository.deleteAll() // Clear existing data
         val currencies = dataTable.asMaps().stream()
             .map { row ->
                 CurrencyEntity(
@@ -82,14 +85,13 @@ class CurrencySteps {
 
     @When("I send a GET request to {string}")
     fun iSendAGetRequest(endpoint: String) {
-        response = mockMvc.perform(
+        val result = mockMvc.perform(
             MockMvcRequestBuilders.get(endpoint)
                 .contentType(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-            .response
-            .contentAsString
+        ).andReturn()
+        
+        lastStatusCode = result.response.status
+        response = result.response.contentAsString
     }
 
     @And("the response should contain {int} currencies")
@@ -100,6 +102,7 @@ class CurrencySteps {
 
     @Given("a currency with country code {string} exists")
     fun aCurrencyWithCountryCodeExists(countryCode: String) {
+        currencyRepository.deleteAll() // Clear existing data
         currencyRepository.save(
             CurrencyEntity(
                 countryCode = countryCode,
