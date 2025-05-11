@@ -1,0 +1,447 @@
+{
+	"info": {
+		"_postman_id": "0a95d995-4e22-4090-8c35-b63e55646e91",
+		"name": "Multi-Currency-Banking",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43517589",
+		"_collection_link": "https://mohammedsheshtar.postman.co/workspace/Mohammed-Sheshtar's-Workspace~9b93bdd5-5f1a-43eb-800b-603e6731274a/collection/43517589-0a95d995-4e22-4090-8c35-b63e55646e91?action=share&source=collection_link&creator=43517589"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"Bashayqer13\",\r\n    \"password\": \"1n23415MM67\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/authentication/api/v1/authentication/login",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"authentication",
+						"api",
+						"v1",
+						"authentication",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"Bashayqer13\",\r\n    \"password\": \"1n23415MM67\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/api/v1/authentication/register",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"authentication",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create or Update KYC",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"firstName\": \"Mohammed\",\r\n  \"lastName\": \"Sheshtar\",\r\n  \"dateOfBirth\": \"2005-09-19\",\r\n  \"civilId\": \"11344678912\",\r\n  \"country\": \"Kuwait\",\r\n  \"phoneNumber\": \"12345678\",\r\n  \"homeAddress\": \"saad alabdullah\",\r\n  \"salary\": 1134.757\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/api/v1/users/kyc",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"kyc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List KYC",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9000/api/v1/users/kyc",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"kyc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List User Bank Accounts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9000/api/v1/users/accounts",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Bank Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"initialBalance\": 0.0,\r\n    \"countryCode\": \"SAR\",\r\n    \"accountType\": \"Checking Account\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/api/v1/users/accounts",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Close User Bank Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:9000/api/v1/users/accounts/77457034944229",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"accounts",
+						"77457034944229"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deposit to Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accountNumber\": \"77435209055015\",\r\n    \"countryCode\": \"JPY\",\r\n    \"amount\": 100000.000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/api/v1/accounts/deposit",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"accounts",
+						"deposit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Withdraw from Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accountNumber\": \"77435209055015\",\r\n    \"countryCode\": \"KWD\",\r\n    \"amount\": 86.950\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/api/v1/accounts/withdraw",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"accounts",
+						"withdraw"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transfer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sourceAccount\": \"77351146871783\",\r\n    \"destinationAccount\": \"77001049063636\",\r\n    \"amount\": 1000.000,\r\n    \"countryCode\": \"KWD\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/api/v1/accounts/transfer",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"accounts",
+						"transfer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch all tiers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9000/api/v1/memberships",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"memberships"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List User Membership Shop",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9000/api/v1/shop/items/72",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"shop",
+						"items",
+						"72"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buy Item",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accountId\": 72,\r\n    \"itemName\": \"30KD gift card\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/api/v1/shop/buy",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"shop",
+						"buy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Account Transaction History",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9000/api/v1/accounts/transactions/72",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"accounts",
+						"transactions",
+						"72"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List User Shopping History",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:9000/api/v1/shop/history/72",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"shop",
+						"history",
+						"72"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0b2ExMTMzIiwiaWF0IjoxNzQ2OTU5Nzk0LCJleHAiOjE3NDY5NjMzOTR9.Jo_f2ot-TZGTHqEgjgXheIyNw4ctixkLJbXKhSXa1oA",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

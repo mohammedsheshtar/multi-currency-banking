@@ -38,19 +38,14 @@ class UserSteps {
 
     @When("I send a POST request to {string} with the following data:")
     fun iSendAPostRequest(endpoint: String, requestBody: String) {
-        response = mockMvc.perform(
+        val result = mockMvc.perform(
             MockMvcRequestBuilders.post(endpoint)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
-        )
-            .andReturn()
-            .response
-            .contentAsString
-    }
-
-    @Then("the response status code should be {int}")
-    fun theResponseStatusCodeShouldBe(statusCode: Int) {
-        // Status code is already verified in the @When step
+        ).andReturn()
+        
+        CommonSteps.lastStatusCode = result.response.status
+        response = result.response.contentAsString
     }
 
     @And("the user should be registered successfully")
