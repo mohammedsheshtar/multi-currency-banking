@@ -73,5 +73,11 @@ deposit, withdraw, transfer funds with currency conversion, earn tier points, an
 10. Buy item using points via `/api/v1/shop/buy`
 11. View history using `/api/v1/shop/history/{accountId}`
 
-- 📬 Postman Collection:  
-  [👉 Download Postman Collection](link-to-your-postman-export)
+## 📬 Postman Collection:  
+
+
+You can use this Postman collection to test all endpoints quickly:
+
+👉 [Download & Import to Postman](https://raw.githubusercontent.com/mohammedsheshtar/multi-currency-banking/main/src/main/kotlin/com/bank/Multi-Currency-Banking.postman_collection.json)
+
+> Just paste this link in Postman → Import → Link tab
