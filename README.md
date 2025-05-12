@@ -62,7 +62,7 @@ deposit, withdraw, transfer funds with currency conversion, earn tier points, an
 ## 🎬 Demo Instructions
 
 1. Register a new user via `/api/v1/authentication/register`
-2. Login and copy the JWT token via `/api/v1/authentication/login`
+2. Login and copy the JWT token via `/authentication/api/v1/authentication/register`
 3. Set KYC using `/api/v1/users/kyc`
 4. Check you KYC data using `/api/v1/users/kyc` but make sure the request is GET
 5. Create a bank account via `/api/v1/users/accounts`
