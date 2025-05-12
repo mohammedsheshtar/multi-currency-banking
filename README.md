@@ -81,3 +81,8 @@ You can use this Postman collection to test all endpoints quickly:
 👉 [Download & Import to Postman](https://raw.githubusercontent.com/mohammedsheshtar/multi-currency-banking/main/src/main/kotlin/com/bank/Multi-Currency-Banking.postman_collection.json)
 
 > Just paste this link in Postman → Import → Link tab
+
+### Legacy Repository:
+this repository has all the commits and work we had done on the project before it was stable
+   ```bash
+   git clone git@github.com:Bashayer770/Bank-Cornerstone.git
