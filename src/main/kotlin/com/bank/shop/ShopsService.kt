@@ -93,6 +93,7 @@ class ShopsService(
 
         val shopTransactionCache = serverMcCache.getMap<Long, List<ShopTransactionResponse?>>("shopTransaction")
         loggerShopTransaction.info("shopping history for account=${account.id} has been updated...invalidating cache")
+
         shopTransactionCache.remove(account.id)
 
         return ResponseEntity.ok().body(PurchaseResponse(
