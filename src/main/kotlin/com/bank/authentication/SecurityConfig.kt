@@ -32,7 +32,8 @@ class SecurityConfig(
                 it.requestMatchers(
                     "/authentication/api/v1/authentication/login",
                     "/api/v1/authentication/register",
-                    "/api-docs").permitAll()
+                    "/api-docs",
+                    "/api/welcome").permitAll()
                 it.requestMatchers(
                     "/api/v1/users/kyc",
                     "/api/v1/users/accounts",
