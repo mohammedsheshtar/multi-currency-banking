@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class WelcomePage(){
-    @GetMapping("/api/welcome")
-    fun welcomeToXChange(): String{
+    @GetMapping("/api/welcome/v1")
+    fun welcomeMessage(): String{
 return "Welcome to XChange! where the world is in your hands!"
     }
 }

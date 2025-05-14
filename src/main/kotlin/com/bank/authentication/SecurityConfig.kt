@@ -33,7 +33,7 @@ class SecurityConfig(
                     "/authentication/api/v1/authentication/login",
                     "/api/v1/authentication/register",
                     "/api-docs",
-                    "/api/welcome").permitAll()
+                    "/api/welcome/v1/**").permitAll()
                 it.requestMatchers(
                     "/api/v1/users/kyc",
                     "/api/v1/users/accounts",

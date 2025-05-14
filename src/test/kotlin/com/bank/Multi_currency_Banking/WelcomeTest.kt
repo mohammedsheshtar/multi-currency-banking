@@ -29,8 +29,7 @@ class WelcomePageTest {
 
     @Test
     fun `welcome should return welcome message`() {
-        val url = "http://localhost:$port/api/welcome"
-        val response: ResponseEntity<String> = restTemplate.getForEntity(url, String::class.java)
+        val response = restTemplate.getForEntity("http://localhost:$port/api/welcome/v1", String::class.java)
         assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals("Welcome to XChange! where the world is in your hands!", response.body)
     }
