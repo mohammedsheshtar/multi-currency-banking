@@ -61,7 +61,7 @@ class ShopController(
 
 data class PurchaseRequest(
     val accountId: Long,
-    val itemName: String
+    val itemId: Long
 )
 
 data class PurchaseResponse(

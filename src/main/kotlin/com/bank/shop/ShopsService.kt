@@ -62,8 +62,9 @@ class ShopsService(
         val membership = userMembershipRepository.findByAccountId(request.accountId)
             ?: return ResponseEntity.badRequest().body(mapOf("error" to "user membership not found"))
 
-        val item = shopsRepository.findByItemNameIgnoreCase(request.itemName.lowercase().trim().lowercase())
-            ?: return ResponseEntity.badRequest().body(mapOf("error" to "item not found"))
+        val item = shopsRepository.findById(request.itemId).orElseThrow {
+            IllegalArgumentException("item with ID ${request.itemId} not found")
+        }
 
         if (membership.tierPoints < item.pointCost)
             return ResponseEntity.badRequest().body(mapOf("error" to "insufficient points"))
