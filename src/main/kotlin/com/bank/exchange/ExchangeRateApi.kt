@@ -30,7 +30,7 @@ class ExchangeRateApi(
 
         // check cache
         cache[key]?.let {
-            loggerConversion.info("⚠\uFE0F conversion rate found in cache...")
+            loggerConversion.info("conversion rate found in cache...")
             return it
         }
 
@@ -39,11 +39,11 @@ class ExchangeRateApi(
         if (dbRate != null) {
             val hoursOld = Duration.between(dbRate.timestamp, LocalDateTime.now()).toHours()
             if (hoursOld < freshnessThresholdHours) {
-                loggerConversion.info("⚠\uFE0F found conversion rate in DB...rate is still recent...updating cache...")
+                loggerConversion.info("found conversion rate in DB...rate is still recent...updating cache...")
                 cache[key] = dbRate.rate
                 return dbRate.rate
             } else {
-                loggerConversion.info("⚠\uFE0F found conversion rate in DB... rate is outdated: ($hoursOld hrs), fetching new one from open API...")
+                loggerConversion.info("found conversion rate in DB...rate is outdated: ($hoursOld hrs), fetching new one from open API...")
             }
         }
 
@@ -58,22 +58,22 @@ class ExchangeRateApi(
             loggerConversion.info("API fetch failed: ${e.message}")
             // If DB fallback is stale but no API, you may decide to return it anyway
             if (dbRate != null) {
-                loggerConversion.info("⚠\uFE0F open API not responding, returning outdated rate from DB as fallback")
+                loggerConversion.info("open API not responding, returning outdated rate from DB as fallback")
                 return dbRate.rate
             } else {
-                throw RuntimeException("⚠\uFE0F unable to fetch currency rate and no fallback available")
+                throw RuntimeException("unable to fetch currency rate and no fallback available")
             }
         }
 
         val newRate = response?.conversion_rate?.toBigDecimal()
-            ?: throw RuntimeException("⚠\uFE0F invalid response from open API")
+            ?: throw RuntimeException("invalid response from open API")
 
         // update DB and Cache
         if (dbRate != null) {
             dbRate.rate = newRate
             dbRate.timestamp = LocalDateTime.now()
             conversionRatesRepository.save(dbRate)
-            loggerConversion.info("⚠\uFE0F conversion rate updated in DB")
+            loggerConversion.info("conversion rate updated in DB")
         } else {
             conversionRatesRepository.save(
                 ConversionRateEntity(
@@ -82,11 +82,11 @@ class ExchangeRateApi(
                     rate = newRate
                 )
             )
-            loggerConversion.info("⚠\uFE0F new conversion rate added in DB")
+            loggerConversion.info("new conversion rate added in DB")
         }
 
         cache[key] = newRate
-        loggerConversion.info("⚠\uFE0F new conversion rate fetched from open API and saved into cache")
+        loggerConversion.info("new conversion rate fetched from open API...saving into cache")
 
         return newRate
     }
