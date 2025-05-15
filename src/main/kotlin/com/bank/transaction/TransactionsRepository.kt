@@ -50,10 +50,13 @@ data class TransactionEntity(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "promo_code_id")
-    val promoCode: PromoCodeEntity? = null
+    val promoCode: PromoCodeEntity? = null,
+
+    @Column(name = "conversion_rate")
+    val conversionRate: BigDecimal? = null
 
 ) {
-    constructor() : this(null, null, null, CurrencyEntity(), BigDecimal("0.0"), null, LocalDateTime.now(), PromoCodeEntity())
+    constructor() : this(null, null, null, CurrencyEntity(), BigDecimal("0.0"), null, LocalDateTime.now(), PromoCodeEntity(), null)
 }
 
 enum class TransactionStatus {

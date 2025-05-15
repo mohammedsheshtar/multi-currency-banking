@@ -99,9 +99,11 @@ data class TransferResponse(
 
 data class TransactionHistoryResponse(
     val accountNumber: String,
-    val currency: String,
+    val accountCurrency: String,
+    val requestedCurrency: String,
     val amount: BigDecimal,
     val status: String,
     val timeStamp: LocalDateTime,
-    val transactionType: String
+    val transactionType: String,
+    val conversionRate: BigDecimal?
 )
