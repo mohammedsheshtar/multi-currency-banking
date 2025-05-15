@@ -33,13 +33,12 @@ class TransactionsService(
     private val promoCodeRepository: PromoCodeRepository,
     private val currencyRepository: CurrencyRepository,
     private val userMembershipRepository: UserMembershipRepository,
-    private val membershipRepository: MembershipRepository
+    private val membershipRepository: MembershipRepository,
+    private val exchangeRateApi: ExchangeRateApi
 ) {
-    @Autowired
-    private lateinit var exchangeRateApi: ExchangeRateApi
 
     fun getTransactionHistory(accountId: Long): ResponseEntity<*> {
-        val transactionCache = serverMcCache.getMap<Long, List<TransactionHistoryResponse>>("transaction")
+        val transactionCache = serverMcCache.getMap<Long, List<TransactionHistoryResponse?>?>("transaction")
 
         transactionCache[accountId]?.let {
             loggerTransaction.info("Returning list of transactions for accountId=$accountId")
@@ -48,18 +47,21 @@ class TransactionsService(
 
         val transactionHistory = transactionRepository.findBySourceAccount_Id(accountId)
 
-        val account = accountRepository.findById(accountId).orElseThrow {
-            IllegalArgumentException("Account with ID $accountId not found")
-        }
+        val account = accountRepository.findById(accountId).orElse(null)
+            ?: return ResponseEntity.badRequest().body(mapOf("error" to "account id not found"))
 
-        val response = transactionHistory?.map { transactionHistory -> TransactionHistoryResponse(
-            accountNumber = account.accountNumber,
-            currency = account.currency.countryCode,
-            amount = transactionHistory.amount,
-            status = transactionHistory.status.toString(),
-            timeStamp = transactionHistory.timeStamp,
-            transactionType = transactionHistory.promoCode?.description.toString()
-        ) }
+        val response = transactionHistory?.map { transactionHistory ->
+                TransactionHistoryResponse(
+                    accountNumber = account.accountNumber,
+                    accountCurrency = account.currency.countryCode,
+                    requestedCurrency = transactionHistory.currency.countryCode,
+                    amount = transactionHistory.amount,
+                    status = transactionHistory.status.toString(),
+                    timeStamp = transactionHistory.timeStamp,
+                    transactionType = transactionHistory.promoCode?.description.toString(),
+                    conversionRate = transactionHistory.conversionRate
+                )
+            }
 
         loggerTransaction.info("No transaction(s) found, caching new data...")
         transactionCache[accountId] = response
@@ -90,8 +92,9 @@ class TransactionsService(
             return ResponseEntity.badRequest().body(mapOf("error" to "amount must be between ${account.currency.symbol}1 and ${account.currency.symbol}100,000"))
         }
 
+        var conversionRate = BigDecimal.ONE
         val (finalAmount, wasConverted) = if (account.currency.countryCode != request.countryCode) {
-            val conversionRate = exchangeRateApi.getRate(request.countryCode, account.currency.countryCode)
+            conversionRate = exchangeRateApi.getRate(request.countryCode, account.currency.countryCode)
             request.amount.multiply(conversionRate).setScale(3, RoundingMode.HALF_UP) to true
         } else {
             request.amount to false
@@ -107,7 +110,8 @@ class TransactionsService(
             amount = request.amount,
             timeStamp = LocalDateTime.now(),
             promoCode = promoCodeDeposit,
-            status = TransactionStatus.COMPLETED
+            status = TransactionStatus.COMPLETED,
+            conversionRate = conversionRate
         ))
 
         val earnedPoints = request.amount.multiply(BigDecimal("0.015")).toInt()
@@ -173,8 +177,9 @@ class TransactionsService(
             return ResponseEntity.badRequest().body(mapOf("error" to "amount must be between ${account.currency.symbol}1 and ${account.currency.symbol}100,000"))
         }
 
+        var conversionRate = BigDecimal.ONE // default: no conversion
         val (finalAmount, wasConverted) = if (account.currency.countryCode != request.countryCode) {
-            val conversionRate = exchangeRateApi.getRate(request.countryCode, account.currency.countryCode)
+            conversionRate = exchangeRateApi.getRate(request.countryCode, account.currency.countryCode)
             request.amount.multiply(conversionRate).setScale(3, RoundingMode.HALF_UP) to true
         } else {
             request.amount to false
@@ -194,7 +199,8 @@ class TransactionsService(
             amount = request.amount,
             timeStamp = LocalDateTime.now(),
             promoCode = promoCode,
-            status = TransactionStatus.COMPLETED
+            status = TransactionStatus.COMPLETED,
+            conversionRate = conversionRate
 
         ))
 
@@ -301,17 +307,19 @@ class TransactionsService(
             amount = request.amount,
             timeStamp = LocalDateTime.now(),
             promoCode = promoCode,
-            status = TransactionStatus.COMPLETED
+            status = TransactionStatus.COMPLETED,
+            conversionRate = fromRate
         ))
 
         transactionRepository.save(TransactionEntity(
             sourceAccount = sourceAccount,
             destinationAccount = null,
-            currency = sourceAccount.currency,
+            currency = requestedCurrency,
             amount = feeInAccountCurrency,
             timeStamp = LocalDateTime.now(),
             promoCode = feePromo,
-            status = TransactionStatus.COMPLETED
+            status = TransactionStatus.COMPLETED,
+            conversionRate = feeRate
         ))
 
         val sourceEarnedPoints = request.amount.multiply(BigDecimal("0.015")).toInt()
