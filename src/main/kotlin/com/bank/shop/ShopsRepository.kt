@@ -32,3 +32,7 @@ data class ShopEntity(
 ) {
     constructor() : this(null, "", "", 0, 0)
 }
+
+enum class MembershipTier {
+    BRONZE, SILVER, GOLD, PLATINUM, DIAMOND
+}

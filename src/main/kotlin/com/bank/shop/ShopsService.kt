@@ -18,8 +18,7 @@ class ShopsService(
     private val shopsRepository: ShopsRepository,
     private val userMembershipRepository: UserMembershipRepository,
     private val shopTransactionsRepository: ShopTransactionsRepository,
-    private val accountRepository: AccountRepository
-) {
+    private val accountRepository: AccountRepository) {
 
     fun listItems(accountId: Long): ResponseEntity<*> {
         val shopCache = serverMcCache.getMap<Long, List<ListItemsResponse>>("shop")
@@ -62,14 +61,27 @@ class ShopsService(
         val membership = userMembershipRepository.findByAccountId(request.accountId)
             ?: return ResponseEntity.badRequest().body(mapOf("error" to "user membership not found"))
 
-        val item = shopsRepository.findByItemNameIgnoreCase(request.itemName.lowercase().trim().lowercase())
-            ?: return ResponseEntity.badRequest().body(mapOf("error" to "item not found"))
+        val item = shopsRepository.findById(request.itemId).orElse(null)
+            ?: return ResponseEntity.badRequest().body(mapOf("error" to "item with ID ${request.itemId} not found"))
+
 
         if (membership.tierPoints < item.pointCost)
             return ResponseEntity.badRequest().body(mapOf("error" to "insufficient points"))
 
         if (item.itemQuantity <= 0)
             return ResponseEntity.badRequest().body(mapOf("error" to "item out of stock"))
+
+        val userTierRank = MembershipTier.entries.indexOf(
+            MembershipTier.valueOf(userMembership.membershipTier.tierName.uppercase())
+        )
+
+        val itemTierRank = MembershipTier.entries.indexOf(
+            MembershipTier.valueOf(item.tierName.uppercase())
+        )
+
+        if (userTierRank < itemTierRank) {
+            return ResponseEntity.badRequest().body(mapOf("error" to "your membership tier does not allow this purchase"))
+        }
 
         val updatedPoints = membership.tierPoints - item.pointCost
 

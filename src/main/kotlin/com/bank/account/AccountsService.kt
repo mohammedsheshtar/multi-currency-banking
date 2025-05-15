@@ -141,7 +141,7 @@ class AccountsService(
 
 
         val accountCache = serverMcCache.getMap<Long, List<CreateAccountResponse>>("account")
-        loggerAccount.info("account=${account.id} for userId=$userId has been closed...invalidating cache")
+        loggerAccount.info("accountId=${account.id} for userId=$userId has been closed...invalidating cache")
         accountCache.remove(userId)
 
         return ResponseEntity.ok().build()
