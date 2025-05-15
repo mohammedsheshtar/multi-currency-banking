@@ -20,6 +20,7 @@ fun main(args: Array<String>) {
     mcCacheConfig.getMapConfig("transaction").setTimeToLiveSeconds(60)
     mcCacheConfig.getMapConfig("shop").setTimeToLiveSeconds(60)
     mcCacheConfig.getMapConfig("shopTransaction").setTimeToLiveSeconds(60)
+    mcCacheConfig.getMapConfig("conversionRate").setTimeToLiveSeconds(3600)
 
 }
 
