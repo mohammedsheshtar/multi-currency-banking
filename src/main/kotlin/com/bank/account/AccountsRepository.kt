@@ -42,7 +42,7 @@ data class AccountEntity(
     @Column(name = "is_active")
     val isActive: Boolean,
 
-    @Column(name = "account_number")
+    @Column(name = "account_number", unique = true)
     val accountNumber: String,
 
     @Column(name = "account_type")
