@@ -34,16 +34,22 @@ class ShopsService(
         val userTier = membership.membershipTier.tierName
 
         val allowedTiers = listOf("BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND")
-        val index = allowedTiers.indexOf(userTier.uppercase())
-        val visibleTiers = allowedTiers.subList(0, index + 1)
-        val items = shopsRepository.findAll().filter { it.tierName in visibleTiers }
+        val userTierIndex = allowedTiers.indexOf(userTier.uppercase())
 
-        val response = items.map{ items -> ListItemsResponse(
-            itemName = items.itemName,
-            tierName = items.tierName,
-            pointCost = items.pointCost,
-            itemQuantity = items.itemQuantity
-        ) }
+        val allItems = shopsRepository.findAll()
+
+        val response = allItems.map { item ->
+            val itemTierIndex = allowedTiers.indexOf(item.tierName.uppercase())
+
+            ListItemsResponse(
+                itemName = item.itemName,
+                tierName = item.tierName,
+                pointCost = item.pointCost,
+                itemQuantity = item.itemQuantity,
+                isPurchasable = itemTierIndex <= userTierIndex
+            )
+        }
+
 
         loggerShop.info("No shop list found, caching new data...")
         shopCache[accountId] = response

@@ -72,7 +72,8 @@ data class ListItemsResponse(
     val itemName: String,
     val tierName: String,
     val pointCost: Int,
-    val itemQuantity: Int
+    val itemQuantity: Int,
+    val isPurchasable: Boolean
 )
 
 data class ShopTransactionResponse(
