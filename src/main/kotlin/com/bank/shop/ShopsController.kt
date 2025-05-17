@@ -73,7 +73,6 @@ data class ListItemsResponse(
     val tierName: String,
     val pointCost: Int,
     val itemQuantity: Int
-
 )
 
 data class ShopTransactionResponse(
