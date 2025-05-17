@@ -9,7 +9,6 @@ import java.math.BigDecimal
 interface MembershipRepository : JpaRepository<MembershipTierEntity, Long> {
     fun findByTierName(tierName: String): MembershipTierEntity?
 }
-
 @Entity
 @Table(name = "membership_tiers")
 data class MembershipTierEntity(
