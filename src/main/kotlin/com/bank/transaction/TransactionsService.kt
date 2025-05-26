@@ -1,7 +1,6 @@
 package com.bank.transaction
 
 import com.bank.account.AccountRepository
-import com.bank.account.CreateAccountResponse
 import com.bank.account.ListAccountResponse
 import com.bank.currency.CurrencyRepository
 import com.bank.exchange.ExchangeRateApi
@@ -11,7 +10,6 @@ import com.bank.serverMcCache
 import com.bank.shop.ListItemsResponse
 import com.bank.usermembership.UserMembershipRepository
 import com.hazelcast.logging.Logger
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
