@@ -1,12 +1,15 @@
 package com.bank.shop
 
 import com.bank.account.AccountRepository
+import com.bank.kyc.KYCEntity
 import com.bank.serverMcCache
 import com.bank.`shop-transaction`.ShopTransactionsEntity
 import com.bank.`shop-transaction`.ShopTransactionsRepository
 import com.bank.transaction.TransactionHistoryResponse
+import com.bank.user.UserRepository
 import com.bank.usermembership.UserMembershipRepository
 import com.hazelcast.logging.Logger
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -18,17 +21,18 @@ class ShopsService(
     private val shopsRepository: ShopsRepository,
     private val userMembershipRepository: UserMembershipRepository,
     private val shopTransactionsRepository: ShopTransactionsRepository,
-    private val accountRepository: AccountRepository) {
+    private val userRepository: UserRepository
+) {
 
-    fun listItems(accountId: Long): ResponseEntity<*> {
+    fun listItems(userId: Long): ResponseEntity<*> {
         val shopCache = serverMcCache.getMap<Long, List<ListItemsResponse>>("shop")
 
-        shopCache[accountId]?.let {
-            loggerShop.info("Returning list of accounts for accountId=$accountId")
+        shopCache[userId]?.let {
+            loggerShop.info("Returning list of shop items for userId=$userId")
             return ResponseEntity.ok(it)
         }
 
-        val membership = userMembershipRepository.findByAccountId(accountId)
+        val membership = userMembershipRepository.findByUser_Id(userId)
             ?: return ResponseEntity.badRequest().body(mapOf("error" to "user membership was not found"))
 
         val userTier = membership.membershipTier.tierName
@@ -52,23 +56,24 @@ class ShopsService(
 
 
         loggerShop.info("No shop list found, caching new data...")
-        shopCache[accountId] = response
+        shopCache[userId] = response
         return ResponseEntity.ok(response)
     }
 
-    fun buyItem(request: PurchaseRequest): ResponseEntity<*> {
-        val account = accountRepository.findById(request.accountId).orElseThrow {
-            IllegalArgumentException("account not found")
-        }
+    fun buyItem(userId: Long, itemId: Long): ResponseEntity<*> {
+//        val account = accountRepository.findById(request.accountId).orElseThrow {
+//            IllegalArgumentException("account not found")
+//        }
 
-        val userMembership = userMembershipRepository.findByAccountId(request.accountId)
-            ?: return ResponseEntity.badRequest().body(mapOf("error" to "account was not found"))
+        val user = userRepository.findById(userId).orElse(null)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(mapOf("error" to "user not found"))
 
-        val membership = userMembershipRepository.findByAccountId(request.accountId)
+        val membership = userMembershipRepository.findByUser_Id(userId)
             ?: return ResponseEntity.badRequest().body(mapOf("error" to "user membership not found"))
 
-        val item = shopsRepository.findById(request.itemId).orElse(null)
-            ?: return ResponseEntity.badRequest().body(mapOf("error" to "item with ID ${request.itemId} not found"))
+        val item = shopsRepository.findById(itemId).orElse(null)
+            ?: return ResponseEntity.badRequest().body(mapOf("error" to "item with ID $itemId not found"))
 
 
         if (membership.tierPoints < item.pointCost)
@@ -78,7 +83,7 @@ class ShopsService(
             return ResponseEntity.badRequest().body(mapOf("error" to "item out of stock"))
 
         val userTierRank = MembershipTier.entries.indexOf(
-            MembershipTier.valueOf(userMembership.membershipTier.tierName.uppercase())
+            MembershipTier.valueOf(membership.membershipTier.tierName.uppercase())
         )
 
         val itemTierRank = MembershipTier.entries.indexOf(
@@ -99,20 +104,19 @@ class ShopsService(
 
         shopTransactionsRepository.save(
             ShopTransactionsEntity(
-                account = account,
+                user = user,
                 tierName = membership.membershipTier.tierName,
                 item = item,
                 pointsSpent = item.pointCost,
                 timeOfTransaction = LocalDateTime.now(),
-                accountTier = userMembership.membershipTier
-
+                userTier = membership.membershipTier
             )
         )
 
         val shopTransactionCache = serverMcCache.getMap<Long, List<ShopTransactionResponse?>>("shopTransaction")
-        loggerShopTransaction.info("shopping history for account=${account.id} has been updated...invalidating cache")
+        loggerShopTransaction.info("shopping history for userId=${userId} has been updated...invalidating cache")
 
-        shopTransactionCache.remove(account.id)
+        shopTransactionCache.remove(userId)
 
         return ResponseEntity.ok().body(PurchaseResponse(
             updatedPoints = updatedPoints
@@ -121,18 +125,18 @@ class ShopsService(
         )
     }
 
-    fun getShopTransaction(accountId: Long): ResponseEntity<*> {
+    fun getShopTransaction(userId: Long): ResponseEntity<*> {
         val shopTransactionCache = serverMcCache.getMap<Long, List<ShopTransactionResponse?>>("shopTransaction")
 
-        shopTransactionCache[accountId]?.let {
-            loggerShop.info("Returning list of shopping history for accountId=$accountId")
+        shopTransactionCache[userId]?.let {
+            loggerShop.info("Returning list of shopping history for userId=$userId")
             return ResponseEntity.ok(it)
         }
 
-        val shopHistory = shopTransactionsRepository.findByAccountId(accountId)
+        val shopHistory = shopTransactionsRepository.findByUser_Id(userId)
 
-        val userMembership = userMembershipRepository.findByAccountId(accountId)
-            ?: return ResponseEntity.badRequest().body(mapOf("error" to "account was not found"))
+        val userMembership = userMembershipRepository.findByUser_Id(userId)
+            ?: return ResponseEntity.badRequest().body(mapOf("error" to "user membership was not found"))
 
         val response = shopHistory.map { tx ->
             val item = tx.item.id?.let { shopsRepository.findById(it).orElse(null) }
@@ -147,7 +151,7 @@ class ShopsService(
             }
         }
         loggerShop.info("no shopping history found, caching new data...")
-        shopTransactionCache[accountId] = response
+        shopTransactionCache[userId] = response
         return ResponseEntity.ok(response)
     }
 }

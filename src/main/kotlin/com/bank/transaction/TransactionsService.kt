@@ -73,7 +73,7 @@ class TransactionsService(
         val requestedCurrency = currencyRepository.findByCountryCode(request.countryCode)
             ?: return ResponseEntity.badRequest().body(mapOf("error" to "Currency not supported"))
 
-        val userMembership = account.id?.let { userMembershipRepository.findByAccountId(it) }
+        val userMembership = userId?.let { userMembershipRepository.findByUser_Id(it) }
             ?: return ResponseEntity.badRequest().body(mapOf("error" to "Membership not found"))
 
         val promoCodeDeposit = promoCodeRepository.findByCode(TRANSACTION_TYPE_DEPOSIT)
@@ -134,8 +134,8 @@ class TransactionsService(
         userMembershipRepository.save(updatedMembership)
 
         val shopCache = serverMcCache.getMap<Long, List<ListItemsResponse>>("shop")
-        loggerShop.info("user membership for accountId=${account.id} has been updated...invalidating cache")
-        shopCache.remove(account.id)
+        loggerShop.info("user membership for userId=${userId} has been updated...invalidating cache")
+        shopCache.remove(userId)
 
         val accountCache = serverMcCache.getMap<Long, List<ListAccountResponse>>("account")
         loggerAccount.info("user=$userId deposited into accountId=${account.id}...invalidating cache")
@@ -229,11 +229,11 @@ class TransactionsService(
         val requestedCurrency = currencyRepository.findByCountryCode(request.countryCode)
             ?: return ResponseEntity.badRequest().body(mapOf("error" to "unsupported currency"))
 
-        val userSourceMembership = sourceAccount.id?.let { userMembershipRepository.findByAccountId(it) }
-            ?: return ResponseEntity.badRequest().body(mapOf("error" to "membership for source account not found"))
+        val userSourceMembership = sourceAccount.user.id?.let { userMembershipRepository.findByUser_Id(it) }
+            ?: return ResponseEntity.badRequest().body(mapOf("error" to "membership for source account user not found"))
 
-        val userDestinationMembership = destinationAccount.id?.let { userMembershipRepository.findByAccountId(it) }
-            ?: return ResponseEntity.badRequest().body(mapOf("error" to "membership for destination account not found"))
+        val userDestinationMembership = destinationAccount.user.id?.let { userMembershipRepository.findByUser_Id(it) }
+            ?: return ResponseEntity.badRequest().body(mapOf("error" to "membership for destination account user not found"))
 
         val promoCode = promoCodeRepository.findByCode(TRANSACTION_TYPE_TRANSFER)
 
@@ -243,9 +243,9 @@ class TransactionsService(
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(mapOf("error" to "Unauthorized access"))
         }
 
-        if (destinationAccount.user.id != userId) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(mapOf("error" to "Unauthorized access"))
-        }
+//        if (destinationAccount.user.id != userId) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(mapOf("error" to "Unauthorized access"))
+//        }
 
         if (!sourceAccount.isActive) {
             return ResponseEntity.badRequest().body(mapOf("error" to "source account is not active..."))
@@ -362,9 +362,11 @@ class TransactionsService(
 
         userMembershipRepository.save(destinationUpdatedMembership)
 
-        val shopCache = serverMcCache.getMap<Long, List<ListItemsResponse>>("shop")
-        loggerShop.info("user membership for accountId=${sourceAccount.id} has be updated...invalidating cache")
-        shopCache.remove(sourceAccount.id)
+//        val shopCache = serverMcCache.getMap<Long, List<ListItemsResponse>>("shop")
+//        loggerShop.info("user membership for userId=${sourceAccount.user.id} has be updated...invalidating cache")
+//        shopCache.remove(sourceAccount.id)
+
+
 
         val accountCache = serverMcCache.getMap<Long, List<ListAccountResponse>>("account")
         loggerAccount.info("transfer between accounts occurred...invalidating cache")

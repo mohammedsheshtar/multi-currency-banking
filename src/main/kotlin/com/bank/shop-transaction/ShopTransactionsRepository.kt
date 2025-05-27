@@ -3,6 +3,7 @@ package com.bank.`shop-transaction`
 import com.bank.account.AccountEntity
 import com.bank.membership.MembershipTierEntity
 import com.bank.shop.ShopEntity
+import com.bank.user.UserEntity
 import jakarta.persistence.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
@@ -10,7 +11,7 @@ import java.time.LocalDateTime
 
 @Repository
 interface ShopTransactionsRepository : JpaRepository<ShopTransactionsEntity, Long> {
-    fun findByAccountId(accountId: Long): List<ShopTransactionsEntity>
+    fun findByUser_Id(userId: Long): List<ShopTransactionsEntity>
 
 }
 
@@ -22,8 +23,8 @@ data class ShopTransactionsEntity(
     val id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    val account: AccountEntity,
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    val user: UserEntity,
 
     val tierName: String,
 
@@ -38,10 +39,10 @@ data class ShopTransactionsEntity(
     val timeOfTransaction: LocalDateTime,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_tier", referencedColumnName = "id")
-    val accountTier: MembershipTierEntity
+    @JoinColumn(name = "user_tier", referencedColumnName = "id")
+    val userTier: MembershipTierEntity
 
 
 ) {
-    constructor() : this(null, AccountEntity(), "", ShopEntity(), 0, LocalDateTime.now(), MembershipTierEntity())
+    constructor() : this(null, UserEntity(), "", ShopEntity(), 0, LocalDateTime.now(), MembershipTierEntity())
 }

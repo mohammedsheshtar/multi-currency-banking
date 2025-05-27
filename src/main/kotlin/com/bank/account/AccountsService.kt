@@ -20,9 +20,7 @@ private val  loggerAccount = Logger.getLogger("account")
 class AccountsService(
     private val accountRepository: AccountRepository,
     private val userRepository: UserRepository,
-    private val currencyRepository: CurrencyRepository,
-    private val userMembershipRepository: UserMembershipRepository,
-    private val membershipRepository: MembershipRepository
+    private val currencyRepository: CurrencyRepository
 ) {
     fun listUserAccounts(userId: Long?): ResponseEntity<Any> {
        val accountCache = serverMcCache.getMap<Long, List<ListAccountResponse>>("account")
@@ -41,19 +39,13 @@ class AccountsService(
         }
 
         val response = accounts?.map { account ->
-            val membership = account.id?.let { userMembershipRepository.findByAccountId(it) }
-            val tierName = membership?.membershipTier?.tierName ?: "UNKNOWN"
-            val points = membership?.tierPoints ?: "could not find points..." as Int
-
             ListAccountResponse(
                 balance = account.balance,
                 accountNumber = account.accountNumber,
                 accountType = account.accountType,
                 createdAt = account.createdAt,
                 countryCode = account.currency.countryCode,
-                symbol = account.currency.symbol,
-                accountTier = tierName,
-                points = points
+                symbol = account.currency.symbol
             )
         }
 
@@ -72,9 +64,6 @@ class AccountsService(
             ?: return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(mapOf("error" to "user with was not found"))
-
-        val bronzeTier = membershipRepository.findByTierName("BRONZE")
-            ?: return ResponseEntity.badRequest().body(mapOf("error" to "could not find membership tier"))
 
         if (request.initialBalance < BigDecimal(0.000) || request.initialBalance > BigDecimal(1000000.000)) {
             return ResponseEntity
@@ -97,13 +86,6 @@ class AccountsService(
             isActive = true,
             accountNumber = generateUniqueAccountNumber(),
             accountType = request.accountType
-        ))
-
-        userMembershipRepository.save(UserMembershipEntity(
-            user = user,
-            account = account,
-            membershipTier = bronzeTier,
-            tierPoints = 0
         ))
 
         val accountCache = serverMcCache.getMap<Long, List<CreateAccountResponse>>("account")

@@ -1,7 +1,10 @@
 package com.bank.kyc
 
+import com.bank.membership.MembershipRepository
 import com.bank.serverMcCache
 import com.bank.user.UserRepository
+import com.bank.usermembership.UserMembershipEntity
+import com.bank.usermembership.UserMembershipRepository
 import com.hazelcast.logging.Logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -14,7 +17,9 @@ private val loggerKyc = Logger.getLogger("kyc")
 @Service
 class KYCsService(
     private val kycRepository: KYCRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userMembershipRepository: UserMembershipRepository,
+    private val membershipRepository: MembershipRepository
 ) {
     fun getKYC(userId: Long): ResponseEntity<*> {
         val kycCache = serverMcCache.getMap<Long, KYCResponse>("kyc")
@@ -59,6 +64,9 @@ class KYCsService(
                 .body(mapOf("error" to "you must be 18 or older to register"))
         }
 
+        val bronzeTier = membershipRepository.findByTierName("BRONZE")
+            ?: return ResponseEntity.badRequest().body(mapOf("error" to "could not find membership tier"))
+
         val nameRegex = Regex("^[\\p{L} ]{2,50}$") // Unicode letters only, allows Arabic & English names
         val digitsOnlyRegex = Regex("^\\d+$")
 
@@ -86,16 +94,25 @@ class KYCsService(
             return ResponseEntity.badRequest().body(mapOf("error" to "salary must be between 100 and 1,000,000 KD"))
         }
 
-        val kyc = if (existing != null) { // updating data
-            existing.copy(
-                user = user,
-                firstName = request.firstName,
-                lastName = request.lastName,
-                dateOfBirth = request.dateOfBirth,
-                salary = request.salary
-            )
+        val kyc: KYCEntity
+        val userMembership: UserMembershipEntity
+        if (existing != null) { // updating data
+             kyc = existing.copy(
+                 firstName = request.firstName,
+                 lastName = request.lastName,
+                 dateOfBirth = request.dateOfBirth,
+                 salary = request.salary,
+                 civilId = request.civilId,
+                 phoneNumber = request.phoneNumber,
+                 homeAddress = request.homeAddress,
+                 country = request.country
+             )
+
+            userMembership = userMembershipRepository.findByUser_Id(userId)
+                ?: return ResponseEntity.badRequest().body(mapOf("error" to "user is not enrolled in membership program"))
+
         } else {
-            KYCEntity( // making a new KYC profile for this user
+            kyc = KYCEntity( // making a new KYC profile for this user
                 user = user,
                 firstName = request.firstName,
                 lastName = request.lastName,
@@ -106,6 +123,15 @@ class KYCsService(
                 country = request.country,
                 salary = request.salary
             )
+
+            userMembership = userMembershipRepository.save(
+                UserMembershipEntity(
+                    user = user,
+                    kyc = kyc,
+                    membershipTier = bronzeTier,
+                    tierPoints = 0
+                )
+            )
         }
 
         kycRepository.save(kyc) // saving the new/updated data
@@ -115,7 +141,7 @@ class KYCsService(
         kycCache.remove(userId)
 
         return ResponseEntity.ok(user.id?.let {
-            KYCResponse( // returning the results of the operation to the client
+            CreateKYCResponse( // returning the results of the operation to the client
                 firstName = kyc.firstName,
                 lastName = kyc.lastName,
                 dateOfBirth = kyc.dateOfBirth,
@@ -123,7 +149,9 @@ class KYCsService(
                 phoneNumber = kyc.phoneNumber,
                 homeAddress = kyc.homeAddress,
                 salary = kyc.salary,
-                country = kyc.country
+                country = kyc.country,
+                tier = userMembership.membershipTier.tierName,
+                points = userMembership.tierPoints
             )
         })
     }

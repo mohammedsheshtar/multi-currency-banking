@@ -1,6 +1,7 @@
 package com.bank.usermembership
 
 import com.bank.account.AccountEntity
+import com.bank.kyc.KYCEntity
 import com.bank.membership.MembershipTierEntity
 import com.bank.user.UserEntity
 import org.springframework.data.jpa.repository.JpaRepository
@@ -9,8 +10,8 @@ import jakarta.persistence.*
 
 @Repository
 interface UserMembershipRepository : JpaRepository<UserMembershipEntity, Long> {
-    fun findByUserId(userId: Long): List<UserMembershipEntity>
-    fun findByAccountId(accountId: Long): UserMembershipEntity?
+    fun findByUser_Id(userId: Long): UserMembershipEntity?
+//    fun findByAccountId(accountId: Long): UserMembershipEntity?
     fun findByMembershipTierId(membershipTierId: Long): List<UserMembershipEntity>
 }
 
@@ -25,9 +26,9 @@ data class UserMembershipEntity(
     @JoinColumn(name = "user_id")
     val user: UserEntity,
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
-    val account: AccountEntity,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "kyc_id")
+    val kyc: KYCEntity,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "membership_tiers_id", nullable = false)
@@ -36,5 +37,5 @@ data class UserMembershipEntity(
     @Column(nullable = false)
     val tierPoints: Int = 0
 ) {
-    constructor() : this(null, UserEntity(), AccountEntity(), MembershipTierEntity(), 0)
+    constructor() : this(null, UserEntity(), KYCEntity(), MembershipTierEntity(), 0)
 }

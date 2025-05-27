@@ -57,9 +57,7 @@ data class ListAccountResponse(
     val accountType: String,
     val createdAt: LocalDateTime,
     val countryCode: String,
-    val symbol: String,
-    val accountTier: String,
-    val points: Int
+    val symbol: String
 )
 
 data class CreateAccountResponse(

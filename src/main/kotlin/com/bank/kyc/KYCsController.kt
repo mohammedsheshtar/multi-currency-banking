@@ -56,5 +56,18 @@ data class KYCResponse(
     val country: String,
     val phoneNumber: String,
     val homeAddress: String,
-    val salary: BigDecimal
+    val salary: BigDecimal,
+)
+
+data class CreateKYCResponse(
+    val firstName: String,
+    val lastName: String,
+    val dateOfBirth: LocalDate,
+    val civilId: String,
+    val country: String,
+    val phoneNumber: String,
+    val homeAddress: String,
+    val salary: BigDecimal,
+    val tier: String,
+    val points: Int
 )
