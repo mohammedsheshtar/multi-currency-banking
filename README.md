@@ -78,7 +78,7 @@ deposit, withdraw, transfer funds with currency conversion, earn tier points, an
 
 You can use this Postman collection to test all endpoints quickly:
 
-👉 [Download & Import to Postman](https://raw.githubusercontent.com/mohammedsheshtar/multi-currency-banking/main/src/main/kotlin/com/bank/Multi-Currency-Banking.postman_collection.json)
+👉 [Download & Import to Postman](https://raw.githubusercontent.com/mohammedsheshtar/multi-currency-banking/refs/heads/main/src/main/kotlin/com/bank/Multi-Currency-Banking.postman_collection.json)
 
 > Just paste this link in Postman → Import → Link tab
 
