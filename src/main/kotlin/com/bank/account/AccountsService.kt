@@ -15,7 +15,6 @@ import java.security.SecureRandom
 import java.time.LocalDateTime
 private val  loggerAccount = Logger.getLogger("account")
 
-
 @Service
 class AccountsService(
     private val accountRepository: AccountRepository,

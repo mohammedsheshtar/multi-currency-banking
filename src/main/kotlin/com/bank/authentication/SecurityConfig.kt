@@ -43,10 +43,10 @@ class SecurityConfig(
                     "/api/v1/accounts/transfer",
                     "/api/v1/memberships/tier/{name}",
                     "/api/v1/memberships",
-                    "/api/v1/shop/items/{accountId}",
-                    "/api/v1/shop/buy",
+                    "/api/v1/shop/items",
+                    "/api/v1/shop/buy/{itemId}",
                     "/api/v1/accounts/transactions/{accountId}",
-                    "/api/v1/shop/history/{accountId}").authenticated()
+                    "/api/v1/shop/history").authenticated()
                     .anyRequest().authenticated()
             }
             .sessionManagement {

@@ -48,18 +48,8 @@ class KYCRequest(
 
 )
 
-data class KYCResponse(
-    val firstName: String,
-    val lastName: String,
-    val dateOfBirth: LocalDate,
-    val civilId: String,
-    val country: String,
-    val phoneNumber: String,
-    val homeAddress: String,
-    val salary: BigDecimal,
-)
 
-data class CreateKYCResponse(
+data class KYCResponse(
     val firstName: String,
     val lastName: String,
     val dateOfBirth: LocalDate,

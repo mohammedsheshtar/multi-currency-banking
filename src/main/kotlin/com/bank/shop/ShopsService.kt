@@ -2,6 +2,8 @@ package com.bank.shop
 
 import com.bank.account.AccountRepository
 import com.bank.kyc.KYCEntity
+import com.bank.kyc.KYCResponse
+import java.io.Serializable
 import com.bank.serverMcCache
 import com.bank.`shop-transaction`.ShopTransactionsEntity
 import com.bank.`shop-transaction`.ShopTransactionsRepository
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 private val loggerShop = Logger.getLogger("shop")
 private val loggerShopTransaction = Logger.getLogger("shopTransaction")
+private val loggerKyc = Logger.getLogger("kyc")
+
 
 @Service
 class ShopsService(
@@ -54,10 +58,17 @@ class ShopsService(
             )
         }
 
+        val sortedResponse = response.sortedWith(
+            compareBy<ListItemsResponse> {
+                allowedTiers.indexOf(it.tierName.uppercase())
+            }.thenByDescending {
+                it.isPurchasable
+            }
+        )
 
         loggerShop.info("No shop list found, caching new data...")
-        shopCache[userId] = response
-        return ResponseEntity.ok(response)
+        shopCache[userId] = sortedResponse
+        return ResponseEntity.ok(sortedResponse)
     }
 
     fun buyItem(userId: Long, itemId: Long): ResponseEntity<*> {
@@ -113,8 +124,16 @@ class ShopsService(
             )
         )
 
+        val shopCache = serverMcCache.getMap<Long, List<ListItemsResponse>>("shop")
+        loggerShop.info("itemId=$itemId for userId=${userId} has been purchased...invalidating cache")
+        shopCache.remove(userId)
+
         val shopTransactionCache = serverMcCache.getMap<Long, List<ShopTransactionResponse?>>("shopTransaction")
         loggerShopTransaction.info("shopping history for userId=${userId} has been updated...invalidating cache")
+
+        val kycCache = serverMcCache.getMap<Long, KYCResponse>("kyc")
+        loggerKyc.info("KYC for userId=$userId has been updated...invalidating cache")
+        kycCache.remove(userId)
 
         shopTransactionCache.remove(userId)
 

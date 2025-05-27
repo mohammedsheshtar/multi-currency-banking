@@ -29,6 +29,7 @@ data class KYCEntity(
     @Column(name = "last_name")
     val lastName: String,
 
+    @Column(name = "country")
     val country: String,
 
     @Column(name = "date_of_birth")

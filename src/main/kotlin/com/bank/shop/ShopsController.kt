@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import java.io.Serializable
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -42,7 +43,7 @@ class ShopController(
         return shopsService.listItems(userId)
     }
 
-    @PostMapping("/api/v1/shop/buy")
+    @PostMapping("/api/v1/shop/buy/{itemId}")
     fun buyItem(@PathVariable itemId: Long): ResponseEntity<*> {
         val username = SecurityContextHolder.getContext().authentication.name
 
@@ -97,7 +98,7 @@ data class ListItemsResponse(
     val pointCost: Int,
     val itemQuantity: Int,
     val isPurchasable: Boolean
-)
+) : Serializable
 
 data class ShopTransactionResponse(
     val itemName: String,

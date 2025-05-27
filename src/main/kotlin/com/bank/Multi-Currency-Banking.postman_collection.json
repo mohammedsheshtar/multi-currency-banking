@@ -9,6 +9,20 @@
 	"item": [
 		{
 			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();\r",
+							"pm.environment.set(\"token\", jsonData.token);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -17,7 +31,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"Bashayqer13\",\r\n    \"password\": \"1n23415MM67\"\r\n}",
+					"raw": "{\r\n    \"username\": \"Zainab1=122\",\r\n    \"password\": \"1n23415MM67\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -105,7 +119,7 @@
 			"response": []
 		},
 		{
-			"name": "List KYC",
+			"name": "Get KYC",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -126,7 +140,7 @@
 			"response": []
 		},
 		{
-			"name": "List User Bank Accounts",
+			"name": "List Bank Accounts",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -153,7 +167,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"initialBalance\": 0.0,\r\n    \"countryCode\": \"SAR\",\r\n    \"accountType\": \"Checking Account\"\r\n}",
+					"raw": "{\r\n    \"initialBalance\": 1000.0,\r\n    \"countryCode\": \"USD\",\r\n    \"accountType\": \"Checking Account\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -177,12 +191,12 @@
 			"response": []
 		},
 		{
-			"name": "Close User Bank Account",
+			"name": "Close Bank Account",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "localhost:9000/api/v1/users/accounts/77457034944229",
+					"raw": "localhost:9000/api/v1/users/accounts/77957162749255",
 					"host": [
 						"localhost"
 					],
@@ -192,7 +206,7 @@
 						"v1",
 						"users",
 						"accounts",
-						"77457034944229"
+						"77957162749255"
 					]
 				}
 			},
@@ -205,7 +219,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"accountNumber\": \"77435209055015\",\r\n    \"countryCode\": \"JPY\",\r\n    \"amount\": 100000.000\r\n}",
+					"raw": "{\r\n    \"accountNumber\": \"77780212851198\", //USD\r\n    \"countryCode\": \"KWD\",\r\n    \"amount\": 100000.000\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -235,7 +249,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"accountNumber\": \"77435209055015\",\r\n    \"countryCode\": \"KWD\",\r\n    \"amount\": 86.950\r\n}",
+					"raw": "{\r\n    \"accountNumber\": \"77081677191208\", // KWD\r\n    \"countryCode\": \"ZWL\",\r\n    \"amount\": 100.000\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -265,7 +279,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"sourceAccount\": \"77351146871783\",\r\n    \"destinationAccount\": \"77001049063636\",\r\n    \"amount\": 1000.000,\r\n    \"countryCode\": \"KWD\"\r\n}",
+					"raw": "{\r\n    \"sourceAccount\": \"77228809271810\", // USD\r\n    \"destinationAccount\": \"77081677191208\", // KWD\r\n    \"amount\": 1000.000,\r\n    \"countryCode\": \"KWD\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -289,7 +303,7 @@
 			"response": []
 		},
 		{
-			"name": "Fetch all tiers",
+			"name": "Get all Tiers",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -383,7 +397,7 @@
 			"response": []
 		},
 		{
-			"name": "List User Shopping History",
+			"name": "List Account Shopping History",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -395,7 +409,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "localhost:9000/api/v1/shop/history/72",
+					"raw": "localhost:9000/api/v1/shop/history/130",
 					"host": [
 						"localhost"
 					],
@@ -405,7 +419,7 @@
 						"v1",
 						"shop",
 						"history",
-						"72"
+						"130"
 					]
 				}
 			},
@@ -417,7 +431,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0b2ExMTMzIiwiaWF0IjoxNzQ2OTU5Nzk0LCJleHAiOjE3NDY5NjMzOTR9.Jo_f2ot-TZGTHqEgjgXheIyNw4ctixkLJbXKhSXa1oA",
+				"value": "{{token}}",
 				"type": "string"
 			}
 		]

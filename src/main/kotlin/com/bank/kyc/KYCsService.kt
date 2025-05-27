@@ -34,6 +34,9 @@ class KYCsService(
                 .status(HttpStatus.NOT_FOUND)
                 .body(mapOf("error" to "user was not found"))
 
+        val userMembership = userMembershipRepository.findByUser_Id(userId)
+            ?: return ResponseEntity.badRequest().body(mapOf("error" to "user is not enrolled in membership program"))
+
         val response = KYCResponse(
             firstName = kyc.firstName,
             lastName = kyc.lastName,
@@ -42,7 +45,9 @@ class KYCsService(
             phoneNumber = kyc.phoneNumber,
             homeAddress = kyc.homeAddress,
             salary = kyc.salary,
-            country = kyc.country
+            country = kyc.country,
+            tier = userMembership.membershipTier.tierName,
+            points = userMembership.tierPoints
         )
 
         loggerKyc.info("No KYC found, caching new data...")
@@ -124,6 +129,8 @@ class KYCsService(
                 salary = request.salary
             )
 
+            kycRepository.save(kyc) // saving the new/updated data
+
             userMembership = userMembershipRepository.save(
                 UserMembershipEntity(
                     user = user,
@@ -134,14 +141,12 @@ class KYCsService(
             )
         }
 
-        kycRepository.save(kyc) // saving the new/updated data
-
         val kycCache = serverMcCache.getMap<Long, KYCResponse>("kyc")
         loggerKyc.info("KYC for userId=$userId has been updated...invalidating cache")
         kycCache.remove(userId)
 
         return ResponseEntity.ok(user.id?.let {
-            CreateKYCResponse( // returning the results of the operation to the client
+            KYCResponse( // returning the results of the operation to the client
                 firstName = kyc.firstName,
                 lastName = kyc.lastName,
                 dateOfBirth = kyc.dateOfBirth,

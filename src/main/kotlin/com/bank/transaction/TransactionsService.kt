@@ -4,6 +4,7 @@ import com.bank.account.AccountRepository
 import com.bank.account.ListAccountResponse
 import com.bank.currency.CurrencyRepository
 import com.bank.exchange.ExchangeRateApi
+import com.bank.kyc.KYCResponse
 import com.bank.membership.MembershipRepository
 import com.bank.promocode.PromoCodeRepository
 import com.bank.serverMcCache
@@ -16,9 +17,11 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDateTime
+
 private val loggerAccount = Logger.getLogger("account")
-private val  loggerTransaction = Logger.getLogger("transaction")
-private val  loggerShop = Logger.getLogger("shop")
+private val loggerTransaction = Logger.getLogger("transaction")
+private val loggerShop = Logger.getLogger("shop")
+private val loggerKyc = Logger.getLogger("kyc")
 const val TRANSACTION_TYPE_DEPOSIT = 103
 const val TRANSACTION_TYPE_WITHDRAW = 104
 const val TRANSACTION_TYPE_TRANSFER = 101
@@ -45,7 +48,7 @@ class TransactionsService(
 
         val transactionHistory = transactionRepository.findBySourceAccount_Id(accountId)
 
-        val account = accountRepository.findById(accountId).orElse(null)
+        val account = accountRepository.findById(accountId).filter { it.isActive }.orElse(null)
             ?: return ResponseEntity.badRequest().body(mapOf("error" to "account id not found"))
 
         val response = transactionHistory?.map { transactionHistory ->
@@ -112,17 +115,17 @@ class TransactionsService(
             conversionRate = conversionRate
         ))
 
-        val earnedPoints = request.amount.multiply(BigDecimal("0.015")).toInt()
+        val earnedPoints = request.amount.multiply(BigDecimal("0.05")).toInt()
         val updatedPoints = userMembership.tierPoints + earnedPoints
 
         val allTiers = membershipRepository.findAll().sortedBy { it.memberLimit }
+        val currentTier = userMembership.membershipTier
         val nextTier = allTiers
             .filter { updatedPoints >= it.memberLimit }
             .maxByOrNull { it.memberLimit }
             ?: allTiers.first()
 
-
-        val updatedMembership = if (nextTier.id != userMembership.membershipTier.id) {
+        val updatedMembership = if (nextTier.memberLimit > currentTier.memberLimit) {
             userMembership.copy(
                 tierPoints = updatedPoints,
                 membershipTier = nextTier
@@ -131,11 +134,16 @@ class TransactionsService(
             userMembership.copy(tierPoints = updatedPoints)
         }
 
+
         userMembershipRepository.save(updatedMembership)
 
         val shopCache = serverMcCache.getMap<Long, List<ListItemsResponse>>("shop")
         loggerShop.info("user membership for userId=${userId} has been updated...invalidating cache")
         shopCache.remove(userId)
+
+        val kycCache = serverMcCache.getMap<Long, KYCResponse>("kyc")
+        loggerKyc.info("KYC for userId=$userId has been updated...invalidating cache")
+        kycCache.remove(userId)
 
         val accountCache = serverMcCache.getMap<Long, List<ListAccountResponse>>("account")
         loggerAccount.info("user=$userId deposited into accountId=${account.id}...invalidating cache")
@@ -320,28 +328,32 @@ class TransactionsService(
             conversionRate = feeRate
         ))
 
-        val sourceEarnedPoints = request.amount.multiply(BigDecimal("0.015")).toInt()
-        val sourceUpdatedPoints = userSourceMembership.tierPoints + sourceEarnedPoints
+        val sameUser = sourceAccount.user.id == destinationAccount.user.id
 
-        val sourceAllTiers = membershipRepository.findAll().sortedBy { it.memberLimit }
-        val sourceNextTier = sourceAllTiers
-            .filter { sourceUpdatedPoints >= it.memberLimit }
-            .maxByOrNull { it.memberLimit }
-            ?: sourceAllTiers.first()
+        if (!sameUser) {
+            val sourceEarnedPoints = request.amount.multiply(BigDecimal("0.05")).toInt()
+            val sourceUpdatedPoints = userSourceMembership.tierPoints + sourceEarnedPoints
+
+            val sourceAllTiers = membershipRepository.findAll().sortedBy { it.memberLimit }
+            val sourceNextTier = sourceAllTiers
+                .filter { sourceUpdatedPoints >= it.memberLimit }
+                .maxByOrNull { it.memberLimit }
+                ?: sourceAllTiers.first()
 
 
-        val sourceUpdatedMembership = if (sourceNextTier.id != userSourceMembership.membershipTier.id) {
-            userSourceMembership.copy(
-                tierPoints = sourceUpdatedPoints,
-                membershipTier = sourceNextTier
-            )
-        } else {
-            userSourceMembership.copy(tierPoints = sourceUpdatedPoints)
+            val currentSourceTierLimit = userSourceMembership.membershipTier.memberLimit
+            val sourceUpdatedMembership = if (sourceNextTier.memberLimit > currentSourceTierLimit) {
+                userSourceMembership.copy(
+                    tierPoints = sourceUpdatedPoints,
+                    membershipTier = sourceNextTier
+                )
+            } else {
+                userSourceMembership.copy(tierPoints = sourceUpdatedPoints)
+            }
+            userMembershipRepository.save(sourceUpdatedMembership)
         }
 
-        userMembershipRepository.save(sourceUpdatedMembership)
-
-        val destinationEarnedPoints = request.amount.multiply(BigDecimal("0.015")).toInt()
+        val destinationEarnedPoints = request.amount.multiply(BigDecimal("0.5")).toInt()
         val destinationUpdatedPoints = userDestinationMembership.tierPoints + destinationEarnedPoints
 
         val destinationAllTiers = membershipRepository.findAll().sortedBy { it.memberLimit }
@@ -351,7 +363,8 @@ class TransactionsService(
             ?: destinationAllTiers.first()
 
 
-        val destinationUpdatedMembership = if (destinationNextTier.id != userDestinationMembership.membershipTier.id) {
+        val currentDestinationTierLimit = userDestinationMembership.membershipTier.memberLimit
+        val destinationUpdatedMembership = if (destinationNextTier.memberLimit > currentDestinationTierLimit) {
             userDestinationMembership.copy(
                 tierPoints = destinationUpdatedPoints,
                 membershipTier = destinationNextTier
@@ -362,15 +375,31 @@ class TransactionsService(
 
         userMembershipRepository.save(destinationUpdatedMembership)
 
-//        val shopCache = serverMcCache.getMap<Long, List<ListItemsResponse>>("shop")
-//        loggerShop.info("user membership for userId=${sourceAccount.user.id} has be updated...invalidating cache")
-//        shopCache.remove(sourceAccount.id)
 
+        val shopCache = serverMcCache.getMap<Long, List<ListItemsResponse>>("shop")
+        if (!sameUser) {
+            loggerShop.info("user membership for userId=${sourceAccount.user.id} has be updated...invalidating cache")
+            shopCache.remove(sourceAccount.user.id)
+        }
 
+        loggerShop.info("user membership for userId=${destinationAccount.user.id} has be updated...invalidating cache")
+        shopCache.remove(destinationAccount.user.id)
+
+        val kycCache = serverMcCache.getMap<Long, KYCResponse>("kyc")
+        if(!sameUser) {
+            loggerKyc.info("KYC for userId=${sourceAccount.user.id} has been updated...invalidating cache")
+            kycCache.remove(sourceAccount.user.id)
+        }
+
+        loggerKyc.info("KYC for userId=${destinationAccount.user.id} has been updated...invalidating cache")
+        kycCache.remove(destinationAccount.user.id)
 
         val accountCache = serverMcCache.getMap<Long, List<ListAccountResponse>>("account")
-        loggerAccount.info("transfer between accounts occurred...invalidating cache")
-        accountCache.remove(userId)
+        loggerAccount.info("transfer occurred for source account with userId=${sourceAccount.user.id} ...invalidating cache")
+        accountCache.remove(sourceAccount.user.id)
+
+        loggerAccount.info("transfer occurred for destination account with userId=${destinationAccount.user.id} ...invalidating cache")
+        accountCache.remove(sourceAccount.user.id)
 
         val transactionCache = serverMcCache.getMap<Long, List<TransactionHistoryResponse>>("transaction")
         loggerShop.info("transaction history for source accountId=${sourceAccount.id} has been updated...invalidating cache")
@@ -378,7 +407,6 @@ class TransactionsService(
 
         loggerShop.info("transaction history for destination accountId=${destinationAccount.id} has been updated...invalidating cache")
         transactionCache.remove(destinationAccount.id)
-
 
 
         return ResponseEntity.ok().body(TransferResponse(
