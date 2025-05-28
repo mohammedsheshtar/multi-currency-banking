@@ -2,6 +2,8 @@ package com.bank.membership
 
 import com.bank.serverMcCache
 import com.hazelcast.logging.Logger
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import java.util.*
 private val loggerTiers = Logger.getLogger("tiers")
@@ -31,12 +33,12 @@ class MembershipService(
         return response
     }
 
-    fun getByTierName(tierName: String): MembershipTierEntity? {
+    fun getByTierName(tierName: String): ResponseEntity<*> {
         return try {
             val tierNameUpper = tierName.uppercase(Locale.getDefault())
-            membershipRepository.findByTierName(tierNameUpper)
+            ResponseEntity.ok().body(membershipRepository.findByTierName(tierNameUpper))
         } catch (e: IllegalArgumentException) {
-            null
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "membership tier not found"))
         }
     }
 }

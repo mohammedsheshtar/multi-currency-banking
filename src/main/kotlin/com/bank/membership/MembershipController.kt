@@ -2,6 +2,7 @@ package com.bank.membership
 
 import com.bank.user.UserRepository
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
@@ -20,7 +21,7 @@ class MembershipController(
     }
 
     @GetMapping("/api/v1/memberships/tier/{name}")
-    fun getByTierName(@PathVariable name: String): MembershipTierEntity? {
+    fun getByTierName(@PathVariable name: String): ResponseEntity<*> {
         return membershipService.getByTierName(name)
     }
 }
