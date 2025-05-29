@@ -19,7 +19,6 @@ import java.time.LocalDateTime
 class ShopController(
     private val shopsService: ShopsService,
     private val userRepository: UserRepository,
-    private val accountRepository: AccountRepository,
     private val kycRepository: KYCRepository
 ) {
 

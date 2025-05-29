@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name="ConversionRateAPI")
@@ -25,11 +26,15 @@ class ConversionRatesController(
     }
 
     @GetMapping("/api/v1/conversion/rate")
-    fun getConversionRate(@RequestBody request: ConversionRateRequest): ResponseEntity<*> {
+    fun getConversionRate(
+        @RequestParam from: String,
+        @RequestParam to: String
+    ): ResponseEntity<*> {
         val username = SecurityContextHolder.getContext().authentication.name
         val user = userRepository.findByUsername(username)
             ?: throw IllegalArgumentException("user has no id...")
 
+        val request = ConversionRateRequest(from, to)
         return conversionRatesService.getConversionRate(request)
     }
 }
