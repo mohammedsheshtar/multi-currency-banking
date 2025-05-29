@@ -12,6 +12,7 @@ import java.time.LocalDateTime
 @Repository
 interface ShopTransactionsRepository : JpaRepository<ShopTransactionsEntity, Long> {
     fun findByUser_Id(userId: Long): List<ShopTransactionsEntity>
+
 }
 
 @Entity

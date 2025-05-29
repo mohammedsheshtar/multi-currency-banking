@@ -31,7 +31,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"Zainab1=122\",\r\n    \"password\": \"1n23415MM67\"\r\n}",
+					"raw": "{\r\n    \"username\": \"Zainab3812\",\r\n    \"password\": \"1n23415MM67\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -65,7 +65,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"Bashayqer13\",\r\n    \"password\": \"1n23415MM67\"\r\n}",
+					"raw": "{\r\n    \"username\": \"Zainab3812\",\r\n    \"password\": \"1n23415MM67\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -95,7 +95,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"firstName\": \"Mohammed\",\r\n  \"lastName\": \"Sheshtar\",\r\n  \"dateOfBirth\": \"2005-09-19\",\r\n  \"civilId\": \"11344678912\",\r\n  \"country\": \"Kuwait\",\r\n  \"phoneNumber\": \"12345678\",\r\n  \"homeAddress\": \"saad alabdullah\",\r\n  \"salary\": 1134.757\r\n}",
+					"raw": "{\r\n  \"firstName\": \"Zainab\",\r\n  \"lastName\": \"AlSaffar\",\r\n  \"dateOfBirth\": \"2005-09-19\",\r\n  \"civilId\": \"111134468912\",\r\n  \"country\": \"Kuwait\",\r\n  \"phoneNumber\": \"12345678\",\r\n  \"homeAddress\": \"saad alabdullah\",\r\n  \"salary\": 1134.757\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -196,7 +196,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "localhost:9000/api/v1/users/accounts/77957162749255",
+					"raw": "localhost:9000/api/v1/users/accounts/77705101916453",
 					"host": [
 						"localhost"
 					],
@@ -206,7 +206,7 @@
 						"v1",
 						"users",
 						"accounts",
-						"77957162749255"
+						"77705101916453"
 					]
 				}
 			},
@@ -219,7 +219,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"accountNumber\": \"77780212851198\", //USD\r\n    \"countryCode\": \"KWD\",\r\n    \"amount\": 100000.000\r\n}",
+					"raw": "{\r\n    \"accountNumber\": \"77081820789107\", //USD\r\n    \"countryCode\": \"KWD\",\r\n    \"amount\": 10000.000\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -249,7 +249,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"accountNumber\": \"77081677191208\", // KWD\r\n    \"countryCode\": \"ZWL\",\r\n    \"amount\": 100.000\r\n}",
+					"raw": "{\r\n    \"accountNumber\": \"77705101916453\", // KWD\r\n    \"countryCode\": \"KWD\",\r\n    \"amount\": 900.000\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -279,7 +279,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"sourceAccount\": \"77228809271810\", // USD\r\n    \"destinationAccount\": \"77081677191208\", // KWD\r\n    \"amount\": 1000.000,\r\n    \"countryCode\": \"KWD\"\r\n}",
+					"raw": "{\r\n    \"sourceAccount\": \"77081820789107\", // USD\r\n    \"destinationAccount\": \"77428865660033\", // KWD\r\n    \"amount\": 100.000,\r\n    \"countryCode\": \"SAR\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -328,7 +328,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:9000/api/v1/shop/items/72",
+					"raw": "localhost:9000/api/v1/shop/items",
 					"host": [
 						"localhost"
 					],
@@ -337,8 +337,7 @@
 						"api",
 						"v1",
 						"shop",
-						"items",
-						"72"
+						"items"
 					]
 				}
 			},
@@ -351,7 +350,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"accountId\": 72,\r\n    \"itemName\": \"30KD gift card\"\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -359,7 +358,7 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:9000/api/v1/shop/buy",
+					"raw": "localhost:9000/api/v1/shop/buy/3",
 					"host": [
 						"localhost"
 					],
@@ -368,7 +367,8 @@
 						"api",
 						"v1",
 						"shop",
-						"buy"
+						"buy",
+						"3"
 					]
 				}
 			},
@@ -380,7 +380,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:9000/api/v1/accounts/transactions/72",
+					"raw": "localhost:9000/api/v1/accounts/transactions/145",
 					"host": [
 						"localhost"
 					],
@@ -390,7 +390,7 @@
 						"v1",
 						"accounts",
 						"transactions",
-						"72"
+						"145"
 					]
 				}
 			},
@@ -409,7 +409,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "localhost:9000/api/v1/shop/history/130",
+					"raw": "localhost:9000/api/v1/shop/history",
 					"host": [
 						"localhost"
 					],
@@ -418,8 +418,7 @@
 						"api",
 						"v1",
 						"shop",
-						"history",
-						"130"
+						"history"
 					]
 				}
 			},
@@ -455,9 +454,34 @@
 		},
 		{
 			"name": "Get Conversion Rate",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"from\": \"JPY\",\r\n    \"to\": \"KWD\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/api/v1/conversion/rate",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"conversion",
+						"rate"
+					]
+				}
 			},
 			"response": []
 		}
