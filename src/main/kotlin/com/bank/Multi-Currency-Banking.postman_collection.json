@@ -462,7 +462,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"from\": \"JPY\",\r\n    \"to\": \"KWD\"\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -470,7 +470,7 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:9000/api/v1/conversion/rate",
+					"raw": "localhost:9000/api/v1/conversion/rate?from=USD&to=KWD",
 					"host": [
 						"localhost"
 					],
@@ -480,6 +480,16 @@
 						"v1",
 						"conversion",
 						"rate"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "USD"
+						},
+						{
+							"key": "to",
+							"value": "KWD"
+						}
 					]
 				}
 			},
