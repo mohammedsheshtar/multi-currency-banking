@@ -46,7 +46,10 @@ class SecurityConfig(
                     "/api/v1/shop/items",
                     "/api/v1/shop/buy/{itemId}",
                     "/api/v1/accounts/transactions/{accountId}",
-                    "/api/v1/shop/history").authenticated()
+                    "/api/v1/shop/history",
+                    "/api/v1/currencies",
+                    "/api/v1/conversion/rates",
+                    "/api/v1/conversion/rate").authenticated()
                     .anyRequest().authenticated()
             }
             .sessionManagement {
