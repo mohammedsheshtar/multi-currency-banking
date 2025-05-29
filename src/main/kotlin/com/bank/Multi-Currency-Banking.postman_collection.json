@@ -424,6 +424,42 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Get all Conversion Rates",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"initialBalance\": 1000.0,\r\n    \"countryCode\": \"USD\",\r\n    \"accountType\": \"Checking Account\"\r\n}"
+				},
+				"url": {
+					"raw": "localhost:9000/api/v1/conversion/rates",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"v1",
+						"conversion",
+						"rates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Conversion Rate",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
 		}
 	],
 	"auth": {
