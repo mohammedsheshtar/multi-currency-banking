@@ -39,10 +39,10 @@ class ConversionRatesService(
 
         return try {
             val rate = exchangeRateApi.getRate(from, to)
-            ResponseEntity.ok(mapOf(
-                "from" to from,
-                "to" to to,
-                "rate" to rate
+            ResponseEntity.ok(ConversionRateResponse(
+                from = from,
+                to = to,
+                rate = rate
             ))
         } catch (e: Exception) {
             ResponseEntity.status(500).body(mapOf("error" to "failed to get rate: ${e.message}"))

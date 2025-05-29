@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.math.BigDecimal
 
 @Tag(name="ConversionRateAPI")
 @RestController
@@ -42,4 +43,10 @@ class ConversionRatesController(
 data class ConversionRateRequest(
     val from: String,
     val to: String
+)
+
+data class ConversionRateResponse(
+    val from: String,
+    val to: String,
+    val rate: BigDecimal
 )
