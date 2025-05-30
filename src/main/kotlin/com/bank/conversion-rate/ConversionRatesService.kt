@@ -12,10 +12,17 @@ class ConversionRatesService(
     private val currencyRepository: CurrencyRepository
 ) {
 
-    fun getAllRates(): ResponseEntity<*>{
-        val allRates = conversionRatesRepository.findAll()
+    fun getAllRates(): ResponseEntity<*> {
+        val allRates = conversionRatesRepository.findAll().map {
+            ConversionRateResponse(
+                from = it.fromCurrency,
+                to = it.toCurrency,
+                rate = it.rate
+            )
+        }
         return ResponseEntity.ok(allRates)
     }
+
 
     fun getConversionRate(request: ConversionRateRequest): ResponseEntity<*> {
         val from = request.from.trim().uppercase()
