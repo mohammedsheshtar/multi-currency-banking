@@ -32,7 +32,10 @@ class SecurityConfig(
                 it.requestMatchers(
                     "/authentication/api/v1/authentication/login",
                     "/api/v1/authentication/register",
-                    "/api-docs",
+                    "/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**",
                     "/api/welcome/v1/**").permitAll()
                 it.requestMatchers(
                     "/api/v1/users/kyc",
