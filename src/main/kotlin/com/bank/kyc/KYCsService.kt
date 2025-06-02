@@ -61,7 +61,7 @@ class KYCsService(
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(mapOf("error" to "user was not found"))
 
-        val existing = kycRepository.findByUserId(userId) // retrieving whatever data available in the KYC database for this user
+        val existing = kycRepository.findByUserId(userId)
 
         val age = java.time.Period.between(request.dateOfBirth, LocalDate.now()).years
         if (age < 18) {
@@ -72,7 +72,7 @@ class KYCsService(
         val bronzeTier = membershipRepository.findByTierName("BRONZE")
             ?: return ResponseEntity.badRequest().body(mapOf("error" to "could not find membership tier"))
 
-        val nameRegex = Regex("^[\\p{L} ]{2,50}$") // Unicode letters only, allows Arabic & English names
+        val nameRegex = Regex("^[\\p{L} ]{2,50}$")
         val digitsOnlyRegex = Regex("^\\d+$")
 
         if (!nameRegex.matches(request.firstName)) {
@@ -95,41 +95,46 @@ class KYCsService(
             return ResponseEntity.badRequest().body(mapOf("error" to "date of birth must be in the past"))
         }
 
-        if (request.salary < BigDecimal(100.000) || request.salary > BigDecimal(1000000.000)) {
+        if (request.salary < BigDecimal(100) || request.salary > BigDecimal(1_000_000)) {
             return ResponseEntity.badRequest().body(mapOf("error" to "salary must be between 100 and 1,000,000 KD"))
         }
 
         val kyc: KYCEntity
         val userMembership: UserMembershipEntity
-        if (existing != null) { // updating data
-             kyc = existing.copy(
-                 firstName = request.firstName,
-                 lastName = request.lastName,
-                 dateOfBirth = request.dateOfBirth,
-                 salary = request.salary,
-                 civilId = request.civilId,
-                 phoneNumber = request.phoneNumber,
-                 homeAddress = request.homeAddress,
-                 country = request.country
-             )
+
+        if (existing != null) {
+            // ✅ UPDATE FLOW — MUST SAVE the updated object
+            kyc = kycRepository.save(
+                existing.copy(
+                    firstName = request.firstName,
+                    lastName = request.lastName,
+                    dateOfBirth = request.dateOfBirth,
+                    salary = request.salary,
+                    civilId = request.civilId,
+                    phoneNumber = request.phoneNumber,
+                    homeAddress = request.homeAddress,
+                    country = request.country
+                )
+            )
 
             userMembership = userMembershipRepository.findByUser_Id(userId)
                 ?: return ResponseEntity.badRequest().body(mapOf("error" to "user is not enrolled in membership program"))
 
         } else {
-            kyc = KYCEntity( // making a new KYC profile for this user
-                user = user,
-                firstName = request.firstName,
-                lastName = request.lastName,
-                dateOfBirth = request.dateOfBirth,
-                civilId = request.civilId,
-                phoneNumber = request.phoneNumber,
-                homeAddress = request.homeAddress,
-                country = request.country,
-                salary = request.salary
+            // ✅ CREATE FLOW
+            kyc = kycRepository.save(
+                KYCEntity(
+                    user = user,
+                    firstName = request.firstName,
+                    lastName = request.lastName,
+                    dateOfBirth = request.dateOfBirth,
+                    civilId = request.civilId,
+                    phoneNumber = request.phoneNumber,
+                    homeAddress = request.homeAddress,
+                    country = request.country,
+                    salary = request.salary
+                )
             )
-
-            kycRepository.save(kyc) // saving the new/updated data
 
             userMembership = userMembershipRepository.save(
                 UserMembershipEntity(
@@ -141,23 +146,27 @@ class KYCsService(
             )
         }
 
+        // ✅ Invalidate cache
         val kycCache = serverMcCache.getMap<Long, KYCResponse>("kyc")
         loggerKyc.info("KYC for userId=$userId has been updated...invalidating cache")
         kycCache.remove(userId)
 
-        return ResponseEntity.ok(user.id?.let {
-            KYCResponse( // returning the results of the operation to the client
-                firstName = kyc.firstName,
-                lastName = kyc.lastName,
-                dateOfBirth = kyc.dateOfBirth,
-                civilId = kyc.civilId,
-                phoneNumber = kyc.phoneNumber,
-                homeAddress = kyc.homeAddress,
-                salary = kyc.salary,
-                country = kyc.country,
-                tier = userMembership.membershipTier.tierName,
-                points = userMembership.tierPoints
-            )
-        })
+        // ✅ Return response
+        return ResponseEntity.ok(
+            user.id?.let {
+                KYCResponse(
+                    firstName = kyc.firstName,
+                    lastName = kyc.lastName,
+                    dateOfBirth = kyc.dateOfBirth,
+                    civilId = kyc.civilId,
+                    phoneNumber = kyc.phoneNumber,
+                    homeAddress = kyc.homeAddress,
+                    salary = kyc.salary,
+                    country = kyc.country,
+                    tier = userMembership.membershipTier.tierName,
+                    points = userMembership.tierPoints
+                )
+            }
+        )
     }
 }
