@@ -92,6 +92,7 @@ data class PurchaseResponse(
 )
 
 data class ListItemsResponse(
+    val id: Long? = null,
     val itemName: String,
     val tierName: String,
     val pointCost: Int,

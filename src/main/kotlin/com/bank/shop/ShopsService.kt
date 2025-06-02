@@ -50,6 +50,7 @@ class ShopsService(
             val itemTierIndex = allowedTiers.indexOf(item.tierName.uppercase())
 
             ListItemsResponse(
+                id = item.id,
                 itemName = item.itemName,
                 tierName = item.tierName,
                 pointCost = item.pointCost,

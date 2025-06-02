@@ -39,6 +39,7 @@ class AccountsService(
 
         val response = accounts?.map { account ->
             ListAccountResponse(
+                id = account.id,
                 balance = account.balance,
                 accountNumber = account.accountNumber,
                 accountType = account.accountType,

@@ -52,6 +52,7 @@ data class CreateAccount(
 )
 
 data class ListAccountResponse(
+    val id: Long? = null,
     val balance: BigDecimal,
     val accountNumber: String,
     val accountType: String,
