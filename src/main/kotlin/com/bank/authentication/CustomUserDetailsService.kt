@@ -14,7 +14,7 @@ class CustomUserDetailsService(
 
         return User.builder()
             .username(user.username)
-            .password(user.password)
+            .password(user.password).authorities("ROLE_USER")
 
             .build()
     }

@@ -1,0 +1,140 @@
+---- Create users table
+--CREATE TABLE IF NOT EXISTS users (
+--    id BIGSERIAL PRIMARY KEY,
+--    username VARCHAR(255) NOT NULL UNIQUE,
+--    password VARCHAR(255) NOT NULL,
+--    created_at TIMESTAMP
+--);
+--
+---- Create roles table
+--CREATE TABLE IF NOT EXISTS roles (
+--    id BIGSERIAL PRIMARY KEY,
+--    role_name VARCHAR(50) NOT NULL,
+--    user_id BIGINT REFERENCES users(id)
+--);
+--
+---- Create currencies table
+--CREATE TABLE IF NOT EXISTS currencies (
+--    id BIGSERIAL PRIMARY KEY,
+--    country_code VARCHAR(3) NOT NULL UNIQUE,
+--    symbol VARCHAR(10) NOT NULL,
+--    name VARCHAR(100) NOT NULL
+--);
+--
+---- Create accounts table
+--CREATE TABLE IF NOT EXISTS accounts (
+--    id BIGSERIAL PRIMARY KEY,
+--    user_id BIGINT REFERENCES users(id),
+--    balance DECIMAL(9,3) NOT NULL,
+--    currency_id BIGINT REFERENCES currencies(id),
+--    created_at TIMESTAMP NOT NULL,
+--    is_active BOOLEAN NOT NULL,
+--    account_number VARCHAR(255) NOT NULL UNIQUE,
+--    account_type VARCHAR(50) NOT NULL
+--);
+--
+---- Create kycs table
+--CREATE TABLE IF NOT EXISTS kycs (
+--    id BIGSERIAL PRIMARY KEY,
+--    user_id BIGINT REFERENCES users(id) UNIQUE,
+--    first_name VARCHAR(100) NOT NULL,
+--    last_name VARCHAR(100) NOT NULL,
+--    country VARCHAR(100) NOT NULL,
+--    date_of_birth DATE NOT NULL,
+--    civil_id VARCHAR(50) NOT NULL,
+--    phone_number VARCHAR(20) NOT NULL,
+--    home_address TEXT NOT NULL,
+--    salary DECIMAL(9,3) NOT NULL
+--);
+--
+---- Create membership_tiers table
+--CREATE TABLE IF NOT EXISTS membership_tiers (
+--    id BIGSERIAL PRIMARY KEY,
+--    tier_name VARCHAR(50) NOT NULL UNIQUE,
+--    member_limit INTEGER NOT NULL,
+--    discount_amount DECIMAL(9,3) NOT NULL
+--);
+--
+---- Create user_memberships table
+--CREATE TABLE IF NOT EXISTS user_memberships (
+--    id BIGSERIAL PRIMARY KEY,
+--    user_id BIGINT REFERENCES users(id),
+--    kyc_id BIGINT REFERENCES kycs(id),
+--    membership_tiers_id BIGINT REFERENCES membership_tiers(id) NOT NULL,
+--    tier_points INTEGER NOT NULL DEFAULT 0
+--);
+--
+---- Create promo_codes table
+--CREATE TABLE IF NOT EXISTS promo_codes (
+--    id BIGSERIAL PRIMARY KEY,
+--    code INTEGER NOT NULL UNIQUE,
+--    description TEXT NOT NULL
+--);
+--
+---- Create transactions table
+--CREATE TABLE IF NOT EXISTS transactions (
+--    id BIGSERIAL PRIMARY KEY,
+--    source_account BIGINT REFERENCES accounts(id),
+--    destination_account BIGINT REFERENCES accounts(id),
+--    currency_id BIGINT REFERENCES currencies(id),
+--    amount DECIMAL(9,3) NOT NULL,
+--    status VARCHAR(20),
+--    time_stamp TIMESTAMP NOT NULL,
+--    promo_code_id BIGINT REFERENCES promo_codes(id),
+--    conversion_rate DECIMAL(9,3)
+--);
+--
+---- Create shops table
+--CREATE TABLE IF NOT EXISTS shops (
+--    id BIGSERIAL PRIMARY KEY,
+--    item_name VARCHAR(255) NOT NULL UNIQUE,
+--    tier_name VARCHAR(50) NOT NULL,
+--    point_cost INTEGER NOT NULL,
+--    item_quantity INTEGER NOT NULL
+--);
+--
+---- Create shop_transactions table
+--CREATE TABLE IF NOT EXISTS shop_transactions (
+--    id BIGSERIAL PRIMARY KEY,
+--    user_id BIGINT REFERENCES users(id),
+--    tier_name VARCHAR(50) NOT NULL,
+--    item_id BIGINT REFERENCES shops(id),
+--    points_spent INTEGER NOT NULL,
+--    time_of_transaction TIMESTAMP NOT NULL,
+--    user_tier BIGINT REFERENCES membership_tiers(id)
+--);
+--
+---- Create conversion_rates table
+--CREATE TABLE IF NOT EXISTS conversion_rates (
+--    id BIGSERIAL PRIMARY KEY,
+--    from_currency VARCHAR(3) NOT NULL,
+--    to_currency VARCHAR(3) NOT NULL,
+--    rate DECIMAL(9,3) NOT NULL,
+--    timestamp TIMESTAMP NOT NULL,
+--    UNIQUE(from_currency, to_currency)
+--);
+--
+---- Create transfer_links table
+--CREATE TABLE IF NOT EXISTS transfer_links (
+--    id BIGSERIAL PRIMARY KEY,
+--    link_id VARCHAR(255) NOT NULL UNIQUE,
+--    source_account BIGINT REFERENCES accounts(id),
+--    amount DECIMAL(9,3) NOT NULL,
+--    currency_id BIGINT REFERENCES currencies(id),
+--    expires_at TIMESTAMP NOT NULL,
+--    is_used BOOLEAN NOT NULL DEFAULT FALSE,
+--    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+--);
+--
+---- Create index for faster link lookups
+--CREATE INDEX IF NOT EXISTS idx_transfer_links_link_id ON transfer_links(link_id);
+--CREATE INDEX IF NOT EXISTS idx_transfer_links_source_account ON transfer_links(source_account);
+--
+---- Create indexes for better query performance
+--CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+--CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts(user_id);
+--CREATE INDEX IF NOT EXISTS idx_accounts_account_number ON accounts(account_number);
+--CREATE INDEX IF NOT EXISTS idx_transactions_source_account ON transactions(source_account);
+--CREATE INDEX IF NOT EXISTS idx_transactions_destination_account ON transactions(destination_account);
+--CREATE INDEX IF NOT EXISTS idx_shop_transactions_user_id ON shop_transactions(user_id);
+--CREATE INDEX IF NOT EXISTS idx_conversion_rates_currencies ON conversion_rates(from_currency, to_currency);
