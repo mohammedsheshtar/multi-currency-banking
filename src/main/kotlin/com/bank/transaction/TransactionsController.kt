@@ -54,6 +54,13 @@ class TransactionsController(
 
         return transactionsService.getTransactionHistory(accountId)
     }
+
+    @GetMapping("/api/v1/user/accounts/transactions")
+    fun getAllTransactionHistory(): ResponseEntity<*> {
+        val username = SecurityContextHolder.getContext().authentication.name
+        val user = userRepository.findByUsername(username) ?: throw IllegalArgumentException("user was not found...")
+        return transactionsService.getAllTransactionHistory(user.id)
+    }
 }
 
 data class DepositRequest(
