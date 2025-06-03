@@ -417,4 +417,32 @@ class TransactionsService(
             transferFee = feeInAccountCurrency
         ))
     }
+
+    fun getAllTransactionHistory(userId: Long?): ResponseEntity<*> {
+
+        val accounts = accountRepository.findByUserId(userId)?.filter { it.isActive }
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error" to "account(s) not found")
+
+        val accountIds = accounts.map { it }
+
+        val transactions = transactionRepository.findBySourceAccountInOrDestinationAccountIn(accountIds, accountIds)
+
+        val transactionHistory = transactions.map {
+            it.sourceAccount?.let { it1 ->
+                it.sourceAccount?.currency?.let { it2 ->
+                    TransactionHistoryResponse(
+                        accountNumber = it1.accountNumber,
+                        accountCurrency = it2.countryCode,
+                        requestedCurrency = it.currency.countryCode,
+                        amount = it.amount,
+                        status = it.status.toString(),
+                        timeStamp = it.timeStamp,
+                        transactionType = it.promoCode?.description.toString(),
+                        conversionRate = it.conversionRate
+                    )
+                }
+            }
+        }
+        return ResponseEntity.ok(transactionHistory)
+    }
 }
